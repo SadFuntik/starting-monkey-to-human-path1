@@ -1,5 +1,6 @@
-package RPIS71.Funtikov.wdad.learn.rmi.server;
+package RPIS71.Funtikov.wdad.learn.rmi;
 
+import RPIS71.Funtikov.wdad.learn.rmi.XmlDataManager;
 import RPIS71.Funtikov.wdad.learn.xml.*;
 
 import java.time.LocalDate;
@@ -7,7 +8,7 @@ import java.util.List;
 
 public class XmlDataManagerImpl implements XmlDataManager {
 
-    private final XmlTask xmlTask = new XmlTask("src/RPIS71/Dmitriev/wdad/learn/xml/poopnfork.xml");
+    private final XmlTask xmlTask = new XmlTask("src/RPIS71/Funtikov/wdad/learn/xml/poopnfork.xml");
 
     @Override
     public int earningsTotal(Officiant officiant, LocalDate date) throws NoSuchDayException {

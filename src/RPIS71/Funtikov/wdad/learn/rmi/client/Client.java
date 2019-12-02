@@ -1,7 +1,7 @@
 package RPIS71.Funtikov.wdad.learn.rmi.client;
 
 import RPIS71.Funtikov.wdad.data.managers.PreferencesManager;
-import RPIS71.Funtikov.wdad.learn.rmi.server.XmlDataManager;
+import RPIS71.Funtikov.wdad.learn.rmi.XmlDataManager;
 import RPIS71.Funtikov.wdad.learn.xml.NoSuchDayException;
 import RPIS71.Funtikov.wdad.learn.xml.NoSuchOfficiantException;
 import RPIS71.Funtikov.wdad.learn.xml.Officiant;
@@ -25,33 +25,18 @@ public class Client {
 
         final XmlDataManager service = (XmlDataManager) registry.lookup(PreferencesManagerConstants.BINDING_NAME);
 
-        LocalDate now = LocalDate.now();
         Officiant officiant = new Officiant("Yan", "Ivanov");
         Officiant newOfficiant = new Officiant("Billy", "Petrov");
         LocalDate date;
-        int total;
-
-        List<Order> items = service.getOrders(now);
-        items.forEach(System.out::println);
-
-        //Yan Ivanov
-        total = service.earningsTotal(officiant, now);
-        System.out.println(total);
 
         date = service.getLastOfficiantWorkDate(officiant);
         System.out.println(date);
 
-        //Yan Ivano -> Billy Petrov
+        //Yan Ivanov -> Billy Petrov
         service.changeOfficiantName(officiant, newOfficiant);
-
-        //Billy Petrov
-        total = service.earningsTotal(newOfficiant, now);
-        System.out.println(total);
 
         date = service.getLastOfficiantWorkDate(newOfficiant);
         System.out.println(date);
 
-        //Remove day
-        service.removeDay(now);
     }
 }

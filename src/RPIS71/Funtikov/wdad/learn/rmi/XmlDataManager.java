@@ -1,4 +1,4 @@
-package RPIS71.Funtikov.wdad.learn.rmi.server;
+package RPIS71.Funtikov.wdad.learn.rmi;
 
 import RPIS71.Funtikov.wdad.learn.xml.NoSuchDayException;
 import RPIS71.Funtikov.wdad.learn.xml.NoSuchOfficiantException;

@@ -26,7 +26,7 @@
     </date>
     <date day="10" month="10" year="2019">
         <order>
-            <officiant firstname="Yan" secondname="ivanov"/>
+            <officiant firstname="yan" secondname="ivanov"/>
             <item cost="" name=""/>
             <item cost="33" name="name"/>
             <item cost="70" name="Котлетос"/>
@@ -49,7 +49,7 @@
     </date>
     <date day="12" month="10" year="2019">
         <order>
-            <officiant firstname="Yan" secondname="ivanov"/>
+            <officiant firstname="yan" secondname="ivanov"/>
             <item cost="" name=""/>
             <item cost="33" name="name"/>
             <item cost="70" name="Котлетос"/>
@@ -72,7 +72,7 @@
     </date>
     <date day="13" month="10" year="2019">
         <order>
-            <officiant firstname="Yan" secondname="ivanov"/>
+            <officiant firstname="yan" secondname="ivanov"/>
             <item cost="" name=""/>
             <item cost="33" name="name"/>
             <item cost="70" name="Котлетос"/>
@@ -95,7 +95,7 @@
     </date>
     <date day="14" month="10" year="2019">
         <order>
-            <officiant firstname="Yan" secondname="ivanov"/>
+            <officiant firstname="yan" secondname="ivanov"/>
             <item cost="" name=""/>
             <item cost="33" name="name"/>
             <item cost="70" name="Котлетос"/>
@@ -118,7 +118,7 @@
     </date>
     <date day="15" month="10" year="2019">
         <order>
-            <officiant firstname="Yan" secondname="ivanov"/>
+            <officiant firstname="yan" secondname="ivanov"/>
             <item cost="" name=""/>
             <item cost="33" name="name"/>
             <item cost="70" name="Котлетос"/>
@@ -141,7 +141,7 @@
     </date>
     <date day="16" month="10" year="2019">
         <order>
-            <officiant firstname="Yan" secondname="ivanov"/>
+            <officiant firstname="yan" secondname="ivanov"/>
             <item cost="" name=""/>
             <item cost="33" name="name"/>
             <item cost="70" name="Котлетос"/>
