@@ -16,18 +16,20 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XmlTask {
 
     private final String filePath;
     private final Document doc;
 
-    XmlTask(String filePath) {
+    public XmlTask(String filePath) {
         this.filePath = filePath;
         this.doc = parseDocument();
     }
 
-    int earningsTotal(String officiantSecondName, LocalDate date) {
+    public int earningsTotal(String officiantSecondName, LocalDate date) throws NoSuchDayException {
         Element dateElement = getDate(date);
         NodeList orders = dateElement.getElementsByTagName("order");
         Element order, currentTotalCost, officiant;
@@ -52,13 +54,13 @@ public class XmlTask {
         return (int) totalCost;
     }
 
-    void removeDay(LocalDate date) {
+    public void removeDay(LocalDate date) throws NoSuchDayException {
         Element dateElement = getDate(date);
         dateElement.getParentNode().removeChild(dateElement);
         changeDocument(doc);
     }
 
-    void changeOfficiantName(String oldFirstName, String oldSecondName, String newFirstName, String newSecondName) {
+    public void changeOfficiantName(String oldFirstName, String oldSecondName, String newFirstName, String newSecondName) {
         NodeList officiants = doc.getElementsByTagName("officiant");
         Element officiantElement;
         for (int i = 0; i < officiants.getLength(); i++) {
@@ -69,6 +71,36 @@ public class XmlTask {
             }
         }
         changeDocument(doc);
+    }
+
+    public List<Order> getOrders(LocalDate date) throws NoSuchDayException {
+        List<Order> orders = new ArrayList<>();
+        Element dateElement = getDate(date);
+        List<Item> items;
+        Element currentElement;
+        Officiant officiant;
+        NodeList orderElements = dateElement.getChildNodes();
+        for (int i = 0; i < orderElements.getLength(); i++) {
+            currentElement = (Element) orderElements.item(i);
+            officiant = getOfficiant(currentElement);
+            items = getItems(currentElement);
+            orders.add(new Order(officiant, items));
+        }
+        return orders;
+    }
+
+    public LocalDate getLastOfficiantWorkDate(String firstName, String secondName) throws NoSuchOfficiantException {
+        NodeList officiants = doc.getElementsByTagName("officiant");
+        Element officiantElement;
+        Element dateElement;
+        for (int i = officiants.getLength() - 1; i >= 0; i--) {
+            officiantElement = (Element) officiants.item(i);
+            if (isThisOfficiant(officiantElement, firstName, secondName)) {
+                dateElement = (Element) officiantElement.getParentNode().getParentNode();
+                return parseDate(dateElement);
+            }
+        }
+        throw new NoSuchOfficiantException("Оффициант с таким именем и фамилией отсутствует");
     }
 
     private Document parseDocument() {
@@ -98,7 +130,7 @@ public class XmlTask {
 
     }
 
-    private Element getDate(LocalDate searchingDate) {
+    private Element getDate(LocalDate searchingDate) throws NoSuchDayException {
         NodeList dates = doc.getElementsByTagName("date");
         Element dateElement;
         LocalDate thisDate;
@@ -109,9 +141,33 @@ public class XmlTask {
                 return dateElement;
             }
         }
-        return null;
+        throw new NoSuchDayException("Заданный день отсутствует.");
     }
 
+    private Officiant getOfficiant(Element element) {
+        Officiant officiant = new Officiant();
+        Element officiantAttributes = (Element) element.getElementsByTagName("officiant").item(0);
+        if (officiantAttributes != null) {
+            officiant.setFirstName(officiantAttributes.getAttribute("firstname"));
+            officiant.setSecondName(officiantAttributes.getAttribute("secondname"));
+        }
+        return officiant;
+    }
+
+    private List<Item> getItems(Element element) {
+        List<Item> items = new ArrayList<>();
+        NodeList itemsElements = element.getElementsByTagName("item");
+        Element itemElement;
+        for (int i = 0; i < itemsElements.getLength(); i++) {
+            itemElement = (Element) itemsElements.item(i);
+            if (itemElement != null) {
+                items.add(new Item(itemElement.getAttribute("name"),
+                        Integer.parseInt("0" + itemElement.getAttribute("cost"))));
+
+            }
+        }
+        return items;
+    }
 
     private boolean isThisOfficiant(Element officiant, String firstName, String secondName) {
         return firstName.equalsIgnoreCase(officiant.getAttribute("firstname")) &&

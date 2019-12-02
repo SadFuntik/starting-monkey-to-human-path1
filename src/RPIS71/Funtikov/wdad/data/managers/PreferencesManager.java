@@ -7,7 +7,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -18,30 +22,29 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Properties;
 
 public class PreferencesManager {
 
-    private static final String FILE_PATH = "src/RPIS71/Funtikov/wdad/appconfig.xml";
+    private static final String FILE_PATH = "src/RPIS71/Funtikov/wdad/resources/configuration/appconfig.xml";
     public static final PreferencesManager INSTANCE = new PreferencesManager();
 
     private static Document document;
 
-
-    private void changeDocument() {
+    private PreferencesManager() {
         try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "appconfig.dtd");
-            transformer.transform(new DOMSource(document), new StreamResult(FILE_PATH));
-        } catch (TransformerException e) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setIgnoringElementContentWhitespace(true);
+            factory.setValidating(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            document = builder.parse(new File(FILE_PATH));
+        } catch (SAXException | IOException | ParserConfigurationException e) {
             e.printStackTrace();
         }
-
     }
 
     public void setProperty(String key, String value) {
@@ -75,7 +78,7 @@ public class PreferencesManager {
     }
 
     public void addBindedObject(String name, String className) {
-        Node serverElement = document.getElementsByTagName("server").item(0);
+        Node serverElement =  document.getElementsByTagName("server").item(0);
         Element bindedObjectElement = document.createElement("bindedobject");
         bindedObjectElement.setAttribute("name", name);
         bindedObjectElement.setAttribute("class", className);
@@ -84,7 +87,7 @@ public class PreferencesManager {
     }
 
     public void removeBindedObject(String name) {
-        NodeList bindedObjects = document.getElementsByTagName("bindedobject");
+        NodeList bindedObjects =  document.getElementsByTagName("bindedobject");
         Element bindedObjectElement;
         for (int i = 0; i < bindedObjects.getLength(); i++) {
             bindedObjectElement = (Element) bindedObjects.item(i);
@@ -96,6 +99,31 @@ public class PreferencesManager {
         changeDocument();
     }
 
+    @Nullable
+    private Node getNode(@NotNull String key) {
+        try {
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            String expression = key.replaceAll("\\.", "/");
+            return (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void changeDocument() {
+        try {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "appconfig.dtd");
+            transformer.transform(new DOMSource(document), new StreamResult(FILE_PATH));
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     @Deprecated
     public String getCreateRegistry() {
@@ -168,15 +196,4 @@ public class PreferencesManager {
         return (Element) document.getElementsByTagName(tagName).item(0);
     }
 
-    @Nullable
-    private Node getNode(@NotNull String key) {
-        try {
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            String expression = key.replaceAll("\\.", "/");
-            return (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }
