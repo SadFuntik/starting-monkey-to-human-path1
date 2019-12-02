@@ -1,7 +1,5 @@
 package RPIS71.Funtikov.wdad.learn.xml;
 
-import RPIS71.Funtikov.wdad.data.managers.PreferencesManager;
-
 import java.time.LocalDate;
 
 public class TestXmlTask {

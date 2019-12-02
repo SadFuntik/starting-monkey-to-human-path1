@@ -1,14 +1,26 @@
 package RPIS71.Funtikov.wdad.data.managers;
 
+import RPIS71.Funtikov.wdad.utils.PreferencesManagerConstants;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.lang.reflect.Field;
 import java.util.Objects;
+import java.util.Properties;
 
 public class PreferencesManager {
 
@@ -31,6 +43,59 @@ public class PreferencesManager {
         }
 
     }
+
+    public void setProperty(String key, String value) {
+        Node propertyNode = getNode(key);
+        if (propertyNode != null) {
+            propertyNode.setTextContent(value);
+            changeDocument();
+        }
+    }
+
+    public String getProperty(String key) {
+        return Objects.requireNonNull(getNode(key)).getTextContent();
+    }
+
+    public void setProperties(Properties prop) {
+        prop.forEach((key, value) -> setProperty(key.toString(), value.toString()));
+    }
+
+    public Properties getProperties() {
+        Properties properties = new Properties();
+        Field[] fields = PreferencesManagerConstants.class.getFields();
+        for (Field field : fields) {
+            try {
+                String fieldValue = String.valueOf(field.get(String.class));
+                properties.setProperty(fieldValue, getProperty(fieldValue));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return properties;
+    }
+
+    public void addBindedObject(String name, String className) {
+        Node serverElement = document.getElementsByTagName("server").item(0);
+        Element bindedObjectElement = document.createElement("bindedobject");
+        bindedObjectElement.setAttribute("name", name);
+        bindedObjectElement.setAttribute("class", className);
+        serverElement.appendChild(bindedObjectElement);
+        changeDocument();
+    }
+
+    public void removeBindedObject(String name) {
+        NodeList bindedObjects = document.getElementsByTagName("bindedobject");
+        Element bindedObjectElement;
+        for (int i = 0; i < bindedObjects.getLength(); i++) {
+            bindedObjectElement = (Element) bindedObjects.item(i);
+            if (name.equalsIgnoreCase(bindedObjectElement.getAttribute("name"))) {
+                bindedObjectElement.getParentNode().removeChild(bindedObjectElement);
+                break;
+            }
+        }
+        changeDocument();
+    }
+
 
     @Deprecated
     public String getCreateRegistry() {
@@ -103,4 +168,15 @@ public class PreferencesManager {
         return (Element) document.getElementsByTagName(tagName).item(0);
     }
 
+    @Nullable
+    private Node getNode(@NotNull String key) {
+        try {
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            String expression = key.replaceAll("\\.", "/");
+            return (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
